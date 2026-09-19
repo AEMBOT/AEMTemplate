@@ -1,10 +1,7 @@
 package com.aembot.frc2026.config.robots;
 
-import com.aembot.frc2026.state.RobotStateYearly;
 import com.aembot.lib.config.subsystems.vision.CameraConfiguration;
 import com.aembot.lib.config.subsystems.vision.SimulatedCameraConfiguration;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -33,40 +30,6 @@ public class ProductionCameraConfig {
   private static final int DISABLED_IMU_MODE = 1;
 
   private static final int ENABLED_IMU_MODE = 1;
-
-  /* ---- TURRET CAM ---- */
-  public final CameraConfiguration cameraConfigTurret =
-      CameraConfiguration.makeLimelight4Config("turret_disabled_no_use") // FIXME
-          .withMechanismOrigin(
-              () -> {
-                Rotation2d turretYaw = RobotStateYearly.get().turretState.turretYaw.get();
-                double yawRads = turretYaw != null ? turretYaw.getRadians() : 0.0;
-                return new Pose3d(
-                    new Translation3d(
-                        Units.inchesToMeters(-5.3125),
-                        Units.inchesToMeters(0),
-                        Units.inchesToMeters(0)),
-                    new Rotation3d(0, 0, yawRads));
-              })
-          .withCameraOffset(
-              new Transform3d(
-                  new Translation3d(
-                      Units.inchesToMeters(6.0625),
-                      Units.inchesToMeters(0),
-                      Units.inchesToMeters(18.75)),
-                  new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(27), 0.0)))
-          .withDisabledThrottleValue(DISABLED_THROTTLE)
-          .withEnabledThrottleValue(ENABLED_THROTTLE)
-          .withDisabledIMUMode(DISABLED_IMU_MODE)
-          .withEnabledIMUMode(ENABLED_IMU_MODE);
-
-  public final SimulatedCameraConfiguration simConfigTurret =
-      new SimulatedCameraConfiguration(cameraConfigTurret)
-          .withFramerate(SIM_CAMERA_FPS)
-          .withCalibrationError(0, 0)
-          .withCameraLatency(SIM_CAMERA_LATENCY_MS, SIM_CAMERA_LATENCY_STDDEV_MS)
-          .withPoseNoise(SIM_POSE_NOISE_TRANSLATION_M, SIM_POSE_NOISE_ROTATION_RAD)
-          .withLatencyVariation(SIM_LATENCY_VARIATION_MS);
 
   /* ---- RIGHT CAM ---- */
   public final CameraConfiguration cameraConfigRight =
@@ -148,9 +111,9 @@ public class ProductionCameraConfig {
 
   /** List of configurations in FL, FR, BL, BR order */
   public final List<CameraConfiguration> cameraConfigurations =
-      List.of(cameraConfigTurret, cameraConfigRight, cameraConfigLeft, cameraConfigBack);
+      List.of(cameraConfigRight, cameraConfigLeft, cameraConfigBack);
 
   /** List of configurations in FL, FR, BL, BR order */
   public final List<SimulatedCameraConfiguration> simConfigurations =
-      List.of(simConfigTurret, simConfigRight, simConfigLeft, simConfigBack);
+      List.of(simConfigRight, simConfigLeft, simConfigBack);
 }
