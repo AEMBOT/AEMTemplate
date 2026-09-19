@@ -1,54 +1,12 @@
 package com.aembot.frc2026.state;
 
-import com.aembot.frc2026.constants.RobotRuntimeConstants;
-import com.aembot.frc2026.state.subsystems.indexer.IndexerCompoundState;
-import com.aembot.frc2026.state.subsystems.turret.TurretState;
 import com.aembot.lib.core.logging.AEMLogger;
-import com.aembot.lib.math.PositionUtil;
 import com.aembot.lib.state.RobotState;
-import com.aembot.lib.state.subsystems.flywheel.FlywheelState;
-import com.aembot.lib.state.subsystems.hood.HoodState;
-import com.aembot.lib.state.subsystems.intake.generic.run.IntakeRollerState;
-import com.aembot.lib.state.subsystems.intake.over_bumper.deploy.OverBumperIntakeDeployState;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.util.Units;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class RobotStateYearly extends RobotState {
   // Ppl on the interwebs say this is good & thread safe
   private static final RobotStateYearly INSTANCE = new RobotStateYearly();
-
-  public final AtomicReference<OverBumperIntakeDeployState> intakeDeployState =
-      new AtomicReference<OverBumperIntakeDeployState>();
-
-  public final IntakeRollerState intakeRollerState = new IntakeRollerState();
-
-  // note: this doesn't need to be atomic because all of its fields should be thread-safe.
-  public final IndexerCompoundState indexerCompoundState =
-      new IndexerCompoundState(
-          RobotRuntimeConstants.ROBOT_CONFIG.getSpindexerConfiguration().kName,
-          RobotRuntimeConstants.ROBOT_CONFIG.getIndexerSelectorConfiguration().kName,
-          RobotRuntimeConstants.ROBOT_CONFIG.getIndexerKickerConfiguration().kName);
-
-  public final HoodState hoodState = new HoodState();
-
-  public final FlywheelState shooterFlywheelState = new FlywheelState();
-
-  public TurretState turretState = new TurretState();
-
-  public void updateIntakeDeployState(OverBumperIntakeDeployState state) {
-    intakeDeployState.set(state);
-  }
-
-  public OverBumperIntakeDeployState getIntakeDeployState() {
-    return intakeDeployState.get();
-  }
-
-  public IntakeRollerState getIntakeRollerState() {
-    return intakeRollerState;
-  }
 
   public static RobotStateYearly get() {
     return INSTANCE;
@@ -58,45 +16,9 @@ public class RobotStateYearly extends RobotState {
   public void updateLog(String standardPrefix, String inputPrefix) {
     super.updateLog(standardPrefix, inputPrefix);
 
-    Pose3d turretPose =
-        RobotRuntimeConstants.ROBOT_CONFIG
-            .getTurretConfig()
-            .kTurretOriginPose
-            .plus(new Transform3d(0, 0, 0, new Rotation3d(turretState.turretYaw.get())));
-
-    Pose3d intakePose =
-        RobotRuntimeConstants.ROBOT_CONFIG
-            .getIntakeDeployConfig()
-            .kPivotPoint
-            .plus(
-                new Transform3d(
-                    0,
-                    0,
-                    0,
-                    new Rotation3d(
-                        0,
-                        -Units.degreesToRadians(intakeDeployState.get().deployPositionUnits),
-                        0)));
-
-    Pose3d hoodPose =
-        turretPose.transformBy(
-            PositionUtil.toTransform3d(
-                RobotRuntimeConstants.ROBOT_CONFIG
-                    .getHoodConfig()
-                    .kHoodOriginPose
-                    .plus(
-                        new Transform3d(
-                            0,
-                            0,
-                            0,
-                            new Rotation3d(0, -hoodState.getHoodAngle().getRadians(), 0)))));
-
-    AEMLogger.recordOutput(
-        "SensorRobotState/MechanismPositions", new Pose3d[] {turretPose, intakePose, hoodPose});
-
-    indexerCompoundState.updateLog("SensorRobotState/IndexerCompound", "");
-    turretState.updateLog("SensorRobotState/Turret", "");
-    hoodState.updateLog("SensorRobotState/Hood", "");
-    shooterFlywheelState.updateLog("SensorRobotState/ShooterFlywheel", "");
+    // Log mechanism positions here. In AScope, this will let us see
+    // the positions of things like intakes, turrets, and arms as if
+    // we're looking at a real robot!
+    AEMLogger.recordOutput("SensorRobotState/MechanismPositions", new Pose3d[] {});
   }
 }

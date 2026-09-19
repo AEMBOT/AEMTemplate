@@ -54,12 +54,6 @@ public class AutoHelper {
    * <p>DOES NOT add auto chooser to dashboard
    */
   public static void setupAutoChooser(CommandFactory commandFactory) {
-
-    addAuto("MiddleDepot");
-    addAuto("CenterPreload");
-    addAuto("RightDaisy");
-    addAuto("LeftDaisy");
-
     // TODO make clean
     AutoRoutine doNothingRoutine = autoFactory.newRoutine("DoNothing");
 
@@ -78,29 +72,6 @@ public class AutoHelper {
 
     autoChooser.addRoutine("DoNothing", () -> doNothingRoutine);
 
-    String centerPreloadName = "CenterPreload";
-
-    AutoRoutine preloadRoutine = autoFactory.newRoutine(centerPreloadName);
-
-    AutoTrajectory preloadTraj = preloadRoutine.trajectory(centerPreloadName);
-
-    preloadRoutine
-        .active()
-        .onTrue(
-            new InstantCommand(
-                    () -> setOdometryFunc.accept(preloadTraj.getInitialPose().orElseThrow()))
-                .andThen(new WaitCommand(1))
-                .andThen(preloadTraj.cmd()))
-        .whileTrue(
-            commandFactory
-                .shooterCommands
-                .createFlywheelGoalSpeedCommand()
-                .alongWith(
-                    new WaitCommand(2.5)
-                        .andThen(commandFactory.intakeCommands.createRunIntakeCommand())));
-
-    autoChooser.addRoutine(centerPreloadName, () -> preloadRoutine);
-
     SmartDashboard.putData("set odom for auto", setOdomForAuto());
   }
 
@@ -115,16 +86,12 @@ public class AutoHelper {
         .ignoringDisable(true);
   }
 
-  // public static void setOdomForRightDaisy() {
-  //   AutoTrajectory traj = autoFactory.newRoutine("RightDaisy").trajectory("RightDaisy");
-  //   setOdometryFunc.accept(traj.getInitialPose().orElseThrow());
-  // }
-
   /**
    * Add an auto to the auto chooser
    *
    * @param autoName name of the auto to add
    */
+  @SuppressWarnings("unused")
   private static void addAuto(String autoName) {
 
     AutoRoutine routine = autoFactory.newRoutine(autoName);
@@ -141,45 +108,10 @@ public class AutoHelper {
     autoChooser.addRoutine(autoName, () -> routine);
   }
 
-  private static AutoRoutine createRightSundomeElimsRoutine(CommandFactory cmdFactory) {
-    AutoRoutine routine = autoFactory.newRoutine("RightSundomeElims");
-    AutoTrajectory traj = routine.trajectory("RightSundomeElims");
-
-    traj.atTime("ShooterActive").onTrue(cmdFactory.shooterCommands.createShootFuelCommand());
-    traj.atTime("IntakeActive").onTrue(cmdFactory.createShootFuelCommand());
-
-    routine
-        .active()
-        .onTrue(
-            new InstantCommand(() -> setOdometryFunc.accept(traj.getInitialPose().orElseThrow()))
-                .andThen(traj.cmd()));
-
-    return routine;
-  }
-
   /**
    * Register all auto commands to use in choreo
    *
    * @param commandFactory the command factory used by robot container
    */
-  public static void registerAutoCommands(CommandFactory commandFactory) {
-
-    // TODO move this somewhere that makes more sense
-    autoChooser.addRoutine(
-        "rightSundomeElims", () -> createRightSundomeElimsRoutine(commandFactory));
-
-    autoFactory
-        .bind("DeployIntake", commandFactory.intakeCommands.createZeroDownCommand())
-        .bind("RaiseIntake", commandFactory.intakeCommands.createUpCommand())
-        .bind("RunIntake", commandFactory.intakeCommands.createRunIntakeCommand())
-        .bind("StopIntake", commandFactory.intakeCommands.createStopIntakeCommand())
-        .bind("StartShooting", commandFactory.createStartShootingFuelCommand())
-        .bind("StopShooting", commandFactory.createStopShootingFuelCommand())
-        .bind(
-            "SetPassingPoseLeftCorner",
-            commandFactory.shooterCommands.createSetPassingPoseCornerLeftCommand())
-        .bind(
-            "SetPassingPoseRightCorner",
-            commandFactory.shooterCommands.createSetPassingPoseCornerRightCommand());
-  }
+  public static void registerAutoCommands(CommandFactory commandFactory) {}
 }

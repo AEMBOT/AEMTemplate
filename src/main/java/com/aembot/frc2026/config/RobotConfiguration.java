@@ -1,18 +1,9 @@
 package com.aembot.frc2026.config;
 
 import com.aembot.frc2026.config.robots.ProductionConfig;
-import com.aembot.frc2026.config.subsystems.TalonFXTurretConfiguration;
-import com.aembot.frc2026.config.subsystems.indexerKicker.IndexerKickerConfiguration;
-import com.aembot.frc2026.config.subsystems.indexerSelector.IndexerSelectorConfiguration;
-import com.aembot.frc2026.config.subsystems.spindexer.SpindexerConfiguration;
 import com.aembot.lib.config.subsystems.drive.DrivetrainConfiguration;
 import com.aembot.lib.config.subsystems.drive.SwerveModuleConfiguration;
 import com.aembot.lib.config.subsystems.drive.simulation.DrivetrainSimConfiguration;
-import com.aembot.lib.config.subsystems.flywheel.TalonFXFlywheelConfiguration;
-import com.aembot.lib.config.subsystems.hood.TalonFXHoodConfiguration;
-import com.aembot.lib.config.subsystems.hood.simulation.SimulatedHoodConfiguration;
-import com.aembot.lib.config.subsystems.intake.generic.run.BinaryVoltageMotorFollowerConfig;
-import com.aembot.lib.config.subsystems.intake.overBumper.deploy.TalonFXOverBumperIntakeDeployConfiguration;
 import com.aembot.lib.config.subsystems.vision.CameraConfiguration;
 import com.aembot.lib.config.subsystems.vision.SimulatedCameraConfiguration;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -59,41 +50,6 @@ public abstract class RobotConfiguration {
       getSwerveConfigurations();
 
   /**
-   * Get the configuration of the hood
-   *
-   * @return Hood configuration
-   */
-  public abstract TalonFXHoodConfiguration getHoodConfig();
-
-  /**
-   * Get the configuration of the simulated hood
-   *
-   * @return Simulated hood configuration
-   */
-  public abstract SimulatedHoodConfiguration getSimHoodConfig();
-
-  /**
-   * Get the configuration of the intake deployment subsystem
-   *
-   * @return intake deployment configuration
-   */
-  public abstract TalonFXOverBumperIntakeDeployConfiguration getIntakeDeployConfig();
-
-  /**
-   * Get the configuration of the intake roller subsystem
-   *
-   * @return intake roller configuration
-   */
-  public abstract BinaryVoltageMotorFollowerConfig getIntakeRollerConfig();
-
-  /**
-   * Get the configuration of the intake wheels subsystem
-   *
-   * @return intake wheels configuration
-   */
-  public abstract BinaryVoltageMotorFollowerConfig getIntakeWheelsConfig();
-
-  /**
    * Get configuration details about the drive train sim for this robot
    *
    * @return DrivetrainSimConfiguration of the given robot
@@ -114,22 +70,6 @@ public abstract class RobotConfiguration {
    */
   public abstract List<SimulatedCameraConfiguration> getSimulatedCameraConfigurations();
 
-  /** Get configuration details for the spindexer subsystem of this robot */
-  public abstract SpindexerConfiguration getSpindexerConfiguration();
-
-  /** Get configuration details for the indexer selector subsystem of this robot */
-  public abstract IndexerSelectorConfiguration getIndexerSelectorConfiguration();
-
-  /** Get configuration details for the indexer kicker subsystem of this robot */
-  public abstract IndexerKickerConfiguration getIndexerKickerConfiguration();
-
-  /**
-   * Get config details of the flywheel for the robot
-   *
-   * @return Flywheel configuration of the given robot
-   */
-  public abstract TalonFXFlywheelConfiguration getFlywheelConfiguration();
-
   /**
    * retrieve the correct robot constants based on the given robot identification
    *
@@ -143,11 +83,4 @@ public abstract class RobotConfiguration {
         return new ProductionConfig();
     }
   }
-
-  /**
-   * Get the configuration of the turret
-   *
-   * @return the turret configuration
-   */
-  public abstract TalonFXTurretConfiguration getTurretConfig();
 }

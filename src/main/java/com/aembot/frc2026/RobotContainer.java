@@ -7,17 +7,11 @@ package com.aembot.frc2026;
 import com.aembot.frc2026.commands.CommandFactory;
 import com.aembot.frc2026.state.RobotStateYearly;
 import com.aembot.frc2026.subsystems.SubsystemFactory;
-import com.aembot.frc2026.subsystems.turret.TurretSubsystem;
 import com.aembot.frc2026.util.AutoHelper;
 import com.aembot.lib.core.logging.Loggerable;
 import com.aembot.lib.core.logging.log_entries.LogEntry;
 import com.aembot.lib.subsystems.aprilvision.AprilVisionSubsystem;
 import com.aembot.lib.subsystems.drive.DriveSubsystem;
-import com.aembot.lib.subsystems.flywheel.FlywheelSubsystem;
-import com.aembot.lib.subsystems.hood.HoodSubsystem;
-import com.aembot.lib.subsystems.intake.generic.multimotor.IntakeRollerMultiMotorSubsystem;
-import com.aembot.lib.subsystems.intake.over_bumper.deploy.OverBumperIntakeDeploySubsystem;
-import com.aembot.lib.subsystems.premades.BinaryVoltageMotorFollowerSubsytem;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -26,7 +20,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -45,25 +38,8 @@ public class RobotContainer implements Loggerable {
   @SuppressWarnings("unused")
   private final CommandXboxController secondaryController = new CommandXboxController(1);
 
-  /* ---- FLYWHEEL ---- */
-  private final FlywheelSubsystem flywheelSubsystem = SubsystemFactory.createFlywheelSubsystem();
-
   /* ---- DRIVETRAIN ---- */
   private final DriveSubsystem driveSubsystem = SubsystemFactory.createDriveSubsystem();
-
-  /* ---- SHOOTER ---- */
-  private final HoodSubsystem hoodSubsystem = SubsystemFactory.createHoodSubsystem();
-
-  /* ---- INTAKE ---- */
-  private final OverBumperIntakeDeploySubsystem intakeDeploySubsystem =
-      SubsystemFactory.createIntakeDeploySubsystem();
-  private final IntakeRollerMultiMotorSubsystem intakeRollerSubsystem =
-      SubsystemFactory.createIntakeRollerSubsystem();
-  private final BinaryVoltageMotorFollowerSubsytem intakeWheelsSubsystem =
-      SubsystemFactory.createIntakeWheelsSubsystem();
-
-  /* ---- TURRET ---- */
-  private final TurretSubsystem turretSubsystem = SubsystemFactory.createTurretSubsystem();
 
   private final CommandFactory commandFactory;
 
@@ -100,15 +76,7 @@ public class RobotContainer implements Loggerable {
   public RobotContainer(LoggedRobot robot) {
     setupLogger(robot);
 
-    this.commandFactory =
-        new CommandFactory(
-            driveSubsystem,
-            hoodSubsystem,
-            intakeDeploySubsystem,
-            intakeRollerSubsystem,
-            intakeWheelsSubsystem,
-            flywheelSubsystem,
-            turretSubsystem);
+    this.commandFactory = new CommandFactory(driveSubsystem);
 
     configureBindings();
 
@@ -125,77 +93,13 @@ public class RobotContainer implements Loggerable {
     driveSubsystem.setDefaultCommand(
         commandFactory.createDriveJoystickCmd(driverController, driverController.leftBumper()));
 
-    hoodSubsystem.setDefaultCommand(commandFactory.shooterCommands.createHoodDownCommand());
-
-    turretSubsystem.setDefaultCommand(
-        commandFactory.shooterCommands.createTurretTowardsGoalCommand());
-
-    intakeRollerSubsystem.setDefaultCommand(
-        commandFactory.intakeCommands.createStopIntakeCommand());
-
-    flywheelSubsystem.setDefaultCommand(
-        commandFactory.shooterCommands.createFlywheelIdleSpeedCommand());
-
     /* ---- PRIMARY DRIVER COMMANDS ---- */
-
-    driverController.rightTrigger().whileTrue(commandFactory.createShootFuelCommand());
-
-    driverController
-        .leftTrigger()
-        .onTrue(commandFactory.intakeCommands.createZeroDownCommand())
-        .onFalse(commandFactory.intakeCommands.createUpCommand());
-
-    // c on the controller
-    driverController.leftStick().onTrue(commandFactory.intakeCommands.createZeroDownCommand());
-
-    // z on the controller
-    driverController.rightStick().onTrue(commandFactory.intakeCommands.createUpCommand());
-
-    // driverController.y() UNUSED
-
-    driverController
-        .x()
-        .whileTrue(
-            commandFactory.createSetDriveHeadingForUnderTrenchCommand(
-                driverController, driverController.leftBumper()));
-
-    // driverController.a() UNUSED
-
-    driverController
-        .b()
-        .whileTrue(
-            intakeRollerSubsystem
-                .reverseRollerCommand()
-                .alongWith(intakeWheelsSubsystem.reverseSystemCommand()));
-
-    driverController
-        .povLeft()
-        .onTrue(commandFactory.shooterCommands.createSetPassingPoseCornerLeftCommand());
-
-    driverController
-        .povUp()
-        .onTrue(commandFactory.shooterCommands.createSetPassingPoseCenterRightCommand());
-
-    driverController
-        .povRight()
-        .onTrue(commandFactory.shooterCommands.createSetPassingPoseCornerRightCommand());
-
-    driverController
-        .povDown()
-        .onTrue(commandFactory.shooterCommands.createSetPassingPoseCornerLeftCommand());
 
     driverController.start().onTrue(commandFactory.resetOdometryHeading());
 
     /* ---- SECONDARY CONTROLLER BINDINGS ---- */
 
     secondaryController.leftBumper().onTrue(visionSubsystem.createKillVisionCommand());
-
-    secondaryController
-        .x()
-        .whileTrue(commandFactory.shooterCommands.createTurretOffsetIncreaseCommand());
-    secondaryController
-        .b()
-        .whileTrue(commandFactory.shooterCommands.createTurretOffsetDecreaseCommand());
 
     // rest is unused
 
@@ -224,9 +128,7 @@ public class RobotContainer implements Loggerable {
    * @return the command to run at the start of teleop
    */
   public Command getTeleopInitCommand() {
-    return new ParallelCommandGroup(
-        commandFactory.createStopShootingFuelCommand(),
-        commandFactory.intakeCommands.createStopIntakeCommand());
+    return new InstantCommand();
   }
 
   public void logCommands() {
