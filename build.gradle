@@ -147,7 +147,7 @@ spotless {
     java {
         target fileTree(".") {
             include "**/*.java"
-            exclude "**/build/**", "**/build-*/**"
+            exclude "**/build/**", "**/build-*/**", "**/node_modules/**", "**/.docusaurus/**"
         }
         toggleOffOn()
         googleJavaFormat()
@@ -158,7 +158,7 @@ spotless {
     groovyGradle {
         target fileTree(".") {
             include "**/*.gradle"
-            exclude "**/build/**", "**/build-*/**"
+            exclude "**/build/**", "**/build-*/**", "**/node_modules/**", "**/.docusaurus/**"
         }
         greclipse()
         leadingTabsToSpaces(4)
@@ -168,21 +168,24 @@ spotless {
     json {
         target fileTree(".") {
             include "**/*.json"
-            exclude "**/build/**", "**/build-*/**", ".vscode/**"
+            exclude "**/build/**", "**/build-*/**", "**/node_modules/**", "**/.docusaurus/**", ".vscode/**"
         }
         gson().indentWithSpaces(2)
     }
     format "misc", {
         target fileTree(".") {
             include "**/*.md", "**/.gitignore"
-            exclude "**/build/**", "**/build-*/**"
+            exclude "**/build/**", "**/build-*/**", "**/node_modules/**", "**/.docusaurus/**"
         }
         trimTrailingWhitespace()
         leadingTabsToSpaces(2)
         endWithNewline()
     }
     yaml {
-        target '**/*.yaml'
+        target fileTree(".") {
+            include "**/*.yaml"
+            exclude "**/build/**", "**/build-*/**", "**/node_modules/**", "**/.docusaurus/**"
+        }
         jackson()
         prettier()
         leadingTabsToSpaces(2)
